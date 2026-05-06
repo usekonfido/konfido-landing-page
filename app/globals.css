@@ -240,7 +240,7 @@ h2.section-title .accent{color:var(--royal)}
 .step-when{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:center;margin-bottom:8px}
 .step.active .step-when{color:var(--royal)}
 .step h4{margin:0 0 12px;font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--ink);text-align:center;line-height:1.25}
-.step ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.step ul{margin:0 auto;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;width:fit-content}
 .step li{font-size:13px;color:var(--slate);line-height:1.5;padding-left:14px;position:relative}
 .step li::before{content:'';position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--border-2)}
 .step.active li::before{background:var(--royal)}
@@ -257,7 +257,7 @@ h2.section-title .accent{color:var(--royal)}
   .step-marker{display:none}
   .step-when{text-align:left;margin-bottom:4px}
   .step h4{text-align:left;margin-bottom:8px;font-size:17px}
-  .step ul{gap:4px}
+  .step ul{gap:4px;width:auto;margin:0}
   .step li{font-size:13px}
 }
 
