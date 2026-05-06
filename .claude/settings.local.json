@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(mkdir -p /tmp/konfido-scaffold)",
+      "Read(//tmp/**)",
+      "Bash(npx --yes create-next-app@latest konfido-app --typescript --eslint --app --no-tailwind --no-src-dir --import-alias \"@/*\" --use-npm --no-git --no-turbopack --skip-install --yes)",
+      "Bash(rm -rf /tmp/konfido-scaffold/konfido-app/.git /tmp/konfido-scaffold/konfido-app/AGENTS.md /tmp/konfido-scaffold/konfido-app/CLAUDE.md /tmp/konfido-scaffold/konfido-app/README.md)",
+      "Read(//private/tmp/konfido-scaffold/konfido-app/**)",
+      "Bash(npm install *)",
+      "Bash(npm audit *)",
+      "Bash(npm run *)",
+      "Bash(awk 'NR>=609 && NR<=730' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk '{ print NR\": \"length\\($0\\)\" chars\" }' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(sort -t: -k2 -n -r)",
+      "Bash(awk 'NR==685 { print substr\\($0, 1, 200\\) }' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk 'NR==710 { print substr\\($0, 1, 200\\) }' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk 'NR==685' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk NR>=609 && NR<=684 *)",
+      "Bash(awk NR>=686 && NR<=900 *)",
+      "Bash(awk NR>=901 && NR<=1132 *)",
+      "Bash(awk NR>=1326 && NR<=1527 *)",
+      "Bash(awk 'NR==7 || NR==443' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk 'NR==710 { match\\($0, /d=\"[^\"]*\"/\\); print substr\\($0, RSTART+3, RLENGTH-4\\) }' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk 'NR==710 { match\\($0, /d=\"[^\"]*\"/\\); print length\\(substr\\($0, RSTART+3, RLENGTH-4\\)\\) \" chars\" }' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(grep -n 'svg viewBox=\"0 0 800 380\"\\\\|^      </svg>$\\\\|^    </div>$' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk 'NR>=708 && NR<=764' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/index.html)",
+      "Bash(awk -F= 'NF>=2 { gsub\\(/^[ \\\\t]+|[ \\\\t]+$/, \"\", $1\\); printf \"key=[%s] starts_with_space=%s\\\\n\", $1, \\($1 ~ /^[A-Z_]/ ? \"no\" : \"yes\"\\) }' /Users/dogakalkandelen/Desktop/konfido-tech/konfido-landing-page/.env.local)",
+      "Bash(awk *)"
+    ]
+  }
+}
