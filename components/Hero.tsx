@@ -19,16 +19,16 @@ export function Hero() {
           <span className="accent">{t('Robin.', 'sağ kolu.')}</span>
         </h1>
         <p className="lede">
-          {t(
-            'Agentic intelligence for treasury. ',
-            'Hazinenin agentic zekası. ',
-          )}
           <strong>
             {t(
-              'We run the numbers. You run the company.',
-              'Rakamları o halletsin, siz şirketinize odaklanın.',
+              'Agentic intelligence for treasury.',
+              'Hazinenin agentic zekası.',
             )}
-          </strong>
+          </strong>{' '}
+          {t(
+            'We run the numbers. You run the company.',
+            'Rakamları o halletsin, siz şirketinize odaklanın.',
+          )}
         </p>
         <div className="hero-ctas">
           <a href="#waitlist" className="cta on-dark">

@@ -1,11 +1,57 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { useT } from '@/components/i18n/LanguageProvider';
-import { ArrowRight } from '@/components/Icons';
 
 const PipeIcon = ({ children }: { children: React.ReactNode }) => (
   <span className="pi-icon">{children}</span>
 );
+
+type FieldParticle = {
+  sx: number; sy: number;     // start (% of field)
+  mx1: number; my1: number;   // approach waypoint
+  mx2: number; my2: number;   // exit waypoint
+  ex: number; ey: number;     // end (% of field)
+  size: number;
+  delay: number;
+  duration: number;
+  opacity: number;
+};
+
+// Deterministic pseudo-random in [0,1) — keeps SSR + client renders identical.
+function rand(seed: number, salt: number): number {
+  const x = Math.sin(seed * 9301 + salt * 49297 + 1543) * 10000;
+  return x - Math.floor(x);
+}
+
+const FIELD_COUNT = 70;
+
+function makeField(): FieldParticle[] {
+  const out: FieldParticle[] = [];
+  for (let i = 0; i < FIELD_COUNT; i++) {
+    // Start anywhere on the left half (incl. above / below the row).
+    const sx = rand(i, 1) * 38;
+    const sy = -12 + rand(i, 2) * 124;
+    // End anywhere on the right half (incl. above / below).
+    const ex = 62 + rand(i, 3) * 38;
+    const ey = -12 + rand(i, 4) * 124;
+    // Curved waypoints — pull toward the agent zone, jittered for organic feel.
+    const mx1 = sx + (50 - sx) * 0.55 + (rand(i, 5) - 0.5) * 14;
+    const my1 = sy + (50 - sy) * 0.5 + (rand(i, 6) - 0.5) * 32;
+    const mx2 = 50 + (ex - 50) * 0.45 + (rand(i, 7) - 0.5) * 14;
+    const my2 = 50 + (ey - 50) * 0.5 + (rand(i, 8) - 0.5) * 32;
+    out.push({
+      sx, sy, mx1, my1, mx2, my2, ex, ey,
+      size: 1.6 + rand(i, 9) * 3.6,
+      delay: rand(i, 10) * 9,
+      duration: 6 + rand(i, 11) * 4.5,
+      opacity: 0.4 + rand(i, 12) * 0.55,
+    });
+  }
+  return out;
+}
+
+const FIELD: FieldParticle[] = makeField();
 
 function BankIcon() {
   return (
@@ -69,6 +115,36 @@ function DiamondIcon() {
 
 export function Solution() {
   const t = useT();
+  const pipelineRef = useRef<HTMLDivElement>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const pipeline = pipelineRef.current;
+    if (!pipeline || revealed) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    );
+    if (prefersReducedMotion.matches) return;
+
+    if (!('IntersectionObserver' in window)) {
+      requestAnimationFrame(() => setRevealed(true));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setRevealed(true);
+        observer.disconnect();
+      },
+      { threshold: 0.28 },
+    );
+
+    observer.observe(pipeline);
+    return () => observer.disconnect();
+  }, [revealed]);
+
   return (
     <section className="solution">
       <div className="container">
@@ -84,24 +160,65 @@ export function Solution() {
           )}
         </p>
 
-        <div className="pipeline">
+        <div
+          ref={pipelineRef}
+          className="pipeline"
+          data-revealed={revealed ? 'true' : 'false'}
+        >
+          <div className="pipe-field" aria-hidden="true">
+            {FIELD.map((p, i) => (
+              <span
+                key={i}
+                className="data-particle"
+                style={
+                  {
+                    width: `${p.size}px`,
+                    height: `${p.size}px`,
+                    animationDelay: `${p.delay}s`,
+                    animationDuration: `${p.duration}s`,
+                    '--sx': `${p.sx}%`,
+                    '--sy': `${p.sy}%`,
+                    '--mx1': `${p.mx1}%`,
+                    '--my1': `${p.my1}%`,
+                    '--mx2': `${p.mx2}%`,
+                    '--my2': `${p.my2}%`,
+                    '--ex': `${p.ex}%`,
+                    '--ey': `${p.ey}%`,
+                    '--op': p.opacity,
+                  } as React.CSSProperties
+                }
+              />
+            ))}
+          </div>
           <div className="pipe-col">
             <div className="pipe-col-title">{t('Inputs', 'Girdiler')}</div>
-            <div className="pipe-item">
+            <div
+              className="pipe-item"
+              data-reveal="left"
+              style={{ '--reveal-delay': '220ms' } as React.CSSProperties}
+            >
               <BankIcon />
               <div>
                 <div className="pi-text">{t('Bank APIs', "Banka API'leri")}</div>
                 <div className="pi-sub">{t('Live balances and transactions', 'Anlık bakiye ve işlem')}</div>
               </div>
             </div>
-            <div className="pipe-item">
+            <div
+              className="pipe-item"
+              data-reveal="left"
+              style={{ '--reveal-delay': '380ms' } as React.CSSProperties}
+            >
               <ErpIcon />
               <div>
                 <div className="pi-text">{t('ERP data', 'ERP verisi')}</div>
                 <div className="pi-sub">AR · AP · GL</div>
               </div>
             </div>
-            <div className="pipe-item">
+            <div
+              className="pipe-item"
+              data-reveal="left"
+              style={{ '--reveal-delay': '540ms' } as React.CSSProperties}
+            >
               <RulesIcon />
               <div>
                 <div className="pi-text">{t('Operating rules', 'İş kuralları')}</div>
@@ -110,9 +227,7 @@ export function Solution() {
             </div>
           </div>
 
-          <div className="pipe-arrow" aria-hidden="true">
-            <ArrowRight />
-          </div>
+          <div className="pipe-spacer" aria-hidden="true" />
 
           <div className="pipe-center">
             <div className="pc-mark">
@@ -130,27 +245,37 @@ export function Solution() {
             </p>
           </div>
 
-          <div className="pipe-arrow" aria-hidden="true">
-            <ArrowRight />
-          </div>
+          <div className="pipe-spacer" aria-hidden="true" />
 
           <div className="pipe-col">
             <div className="pipe-col-title">{t('Outputs', 'Çıktılar')}</div>
-            <div className="pipe-item">
+            <div
+              className="pipe-item"
+              data-reveal="right"
+              style={{ '--reveal-delay': '220ms' } as React.CSSProperties}
+            >
               <ClockIcon />
               <div>
                 <div className="pi-text">{t('Live cash position', 'Canlı nakit pozisyonu')}</div>
                 <div className="pi-sub">{t('Always current', 'Her an güncel')}</div>
               </div>
             </div>
-            <div className="pipe-item">
+            <div
+              className="pipe-item"
+              data-reveal="right"
+              style={{ '--reveal-delay': '380ms' } as React.CSSProperties}
+            >
               <TrendIcon />
               <div>
                 <div className="pi-text">{t('Liquidity forecasts', 'Likidite tahminleri')}</div>
                 <div className="pi-sub">{t('13 weeks ahead', '13 hafta ileriye')}</div>
               </div>
             </div>
-            <div className="pipe-item">
+            <div
+              className="pipe-item"
+              data-reveal="right"
+              style={{ '--reveal-delay': '540ms' } as React.CSSProperties}
+            >
               <DiamondIcon />
               <div>
                 <div className="pi-text">{t('Allocation suggestions', 'Tahsis önerileri')}</div>

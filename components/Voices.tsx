@@ -123,7 +123,7 @@ export function Voices() {
             <span className="eyebrow-tag">
               {t('Early users', 'Erken kullanıcılar')}
             </span>
-            <h2 className="section-title">
+            <h2 className="section-title voices-title">
               {t(
                 'The first finance teams ',
                 'Bizimle tasarım partneri olanlar ',

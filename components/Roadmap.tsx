@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { useT } from '@/components/i18n/LanguageProvider';
 import { ArrowRightSmall } from '@/components/Icons';
 
@@ -73,6 +74,33 @@ function GridIcon() {
 
 export function Roadmap() {
   const t = useT();
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const timeline = timelineRef.current;
+    if (!timeline || revealed) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    if (!('IntersectionObserver' in window)) {
+      requestAnimationFrame(() => setRevealed(true));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setRevealed(true);
+        observer.disconnect();
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.18 },
+    );
+
+    observer.observe(timeline);
+    return () => observer.disconnect();
+  }, [revealed]);
+
   return (
     <section className="roadmap">
       <div className="container">
@@ -97,9 +125,21 @@ export function Roadmap() {
           <img src="/world.svg" alt="" />
         </div>
 
-        <div className="timeline">
+        <div
+          ref={timelineRef}
+          className="timeline"
+          data-revealed={revealed ? 'true' : 'false'}
+        >
           {STOPS.map((s, i) => (
-            <div key={i} className={`stop${s.now ? ' now' : ''}`}>
+            <div
+              key={i}
+              className={`stop${s.now ? ' now' : ''}`}
+              style={
+                {
+                  '--stop-reveal-delay': `${i * 140}ms`,
+                } as React.CSSProperties
+              }
+            >
               <div className="pin">
                 {s.liveDot && <span className="live-dot" />}
                 {t(s.pinEn, s.pinTr)}
