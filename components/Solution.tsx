@@ -8,23 +8,31 @@ const PipeIcon = ({ children }: { children: React.ReactNode }) => (
 );
 
 type FieldParticle = {
-  sx: number; sy: number;     // start (% of field)
-  mx1: number; my1: number;   // approach waypoint
-  mx2: number; my2: number;   // exit waypoint
-  ex: number; ey: number;     // end (% of field)
-  size: number;
-  delay: number;
-  duration: number;
-  opacity: number;
+  sx: string; sy: string;     // start (% of field)
+  mx1: string; my1: string;   // approach waypoint
+  mx2: string; my2: string;   // exit waypoint
+  ex: string; ey: string;     // end (% of field)
+  size: string;
+  delay: string;
+  duration: string;
+  opacity: string;
 };
 
-// Deterministic pseudo-random in [0,1) — keeps SSR + client renders identical.
+// Integer-only deterministic pseudo-random in [0,1).
+// Avoid Math.sin floating-point drift between SSR and browser hydration.
 function rand(seed: number, salt: number): number {
-  const x = Math.sin(seed * 9301 + salt * 49297 + 1543) * 10000;
-  return x - Math.floor(x);
+  let x = (seed + 1) * 374761393 + (salt + 1) * 668265263;
+  x = (x ^ (x >>> 13)) >>> 0;
+  x = Math.imul(x, 1274126177) >>> 0;
+  x = (x ^ (x >>> 16)) >>> 0;
+  return x / 4294967296;
 }
 
 const FIELD_COUNT = 70;
+const pct = (value: number) => `${value.toFixed(2)}%`;
+const px = (value: number) => `${value.toFixed(2)}px`;
+const sec = (value: number) => `${value.toFixed(2)}s`;
+const dec = (value: number) => value.toFixed(2);
 
 function makeField(): FieldParticle[] {
   const out: FieldParticle[] = [];
@@ -41,11 +49,18 @@ function makeField(): FieldParticle[] {
     const mx2 = 50 + (ex - 50) * 0.45 + (rand(i, 7) - 0.5) * 14;
     const my2 = 50 + (ey - 50) * 0.5 + (rand(i, 8) - 0.5) * 32;
     out.push({
-      sx, sy, mx1, my1, mx2, my2, ex, ey,
-      size: 1.6 + rand(i, 9) * 3.6,
-      delay: rand(i, 10) * 9,
-      duration: 6 + rand(i, 11) * 4.5,
-      opacity: 0.4 + rand(i, 12) * 0.55,
+      sx: pct(sx),
+      sy: pct(sy),
+      mx1: pct(mx1),
+      my1: pct(my1),
+      mx2: pct(mx2),
+      my2: pct(my2),
+      ex: pct(ex),
+      ey: pct(ey),
+      size: px(1.6 + rand(i, 9) * 3.6),
+      delay: sec(rand(i, 10) * 9),
+      duration: sec(6 + rand(i, 11) * 4.5),
+      opacity: dec(0.4 + rand(i, 12) * 0.55),
     });
   }
   return out;
@@ -172,18 +187,18 @@ export function Solution() {
                 className="data-particle"
                 style={
                   {
-                    width: `${p.size}px`,
-                    height: `${p.size}px`,
-                    animationDelay: `${p.delay}s`,
-                    animationDuration: `${p.duration}s`,
-                    '--sx': `${p.sx}%`,
-                    '--sy': `${p.sy}%`,
-                    '--mx1': `${p.mx1}%`,
-                    '--my1': `${p.my1}%`,
-                    '--mx2': `${p.mx2}%`,
-                    '--my2': `${p.my2}%`,
-                    '--ex': `${p.ex}%`,
-                    '--ey': `${p.ey}%`,
+                    width: p.size,
+                    height: p.size,
+                    animationDelay: p.delay,
+                    animationDuration: p.duration,
+                    '--sx': p.sx,
+                    '--sy': p.sy,
+                    '--mx1': p.mx1,
+                    '--my1': p.my1,
+                    '--mx2': p.mx2,
+                    '--my2': p.my2,
+                    '--ex': p.ex,
+                    '--ey': p.ey,
                     '--op': p.opacity,
                   } as React.CSSProperties
                 }
