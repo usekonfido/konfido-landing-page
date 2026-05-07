@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { LanguageProvider } from '@/components/i18n/LanguageProvider';
+import { ScrollReset } from '@/components/ScrollReset';
 import './globals.css';
 
 const inter = Inter({
@@ -40,6 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-lang="en" className={inter.variable}>
       <body>
+        <ScrollReset />
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
